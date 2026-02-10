@@ -1,0 +1,86 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: zava-storefront
+metadata:
+  template: terraform
+
+services:
+  web:
+    project: ./src
+    language: csharp
+    host: appservice
+
+hooks:
+  preprovision:
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "Preparing Terraform infrastructure..."
+        cd infra/terraform
+        terraform init
+    posix:
+      shell: sh
+      run: |
+        echo "Preparing Terraform infrastructure..."
+        cd infra/terraform
+        terraform init
+  
+  provision:
+    windows:
+      shell: pwsh
+      run: |
+        cd infra/terraform
+        terraform plan -out=tfplan
+        terraform apply -auto-approve tfplan
+    posix:
+      shell: sh
+      run: |
+        cd infra/terraform
+        terraform plan -out=tfplan
+        terraform apply -auto-approve tfplan
+
+  postprovision:
+    windows:
+      shell: pwsh
+      run: |
+        Write-Host "Infrastructure provisioned successfully"
+        cd infra/terraform
+        terraform output
+    posix:
+      shell: sh
+      run: |
+        echo "Infrastructure provisioned successfully"
+        cd infra/terraform
+        terraform output
+
+  predeploy:
+    windows:
+      shell: pwsh
+      run: |
+        $ACR_NAME = terraform output -raw acr_login_server
+        Write-Host "Building and pushing Docker image to $ACR_NAME..."
+        az acr build --registry $ACR_NAME --image zava-storefront:latest --file ./Dockerfile ./src
+    posix:
+      shell: sh
+      run: |
+        ACR_NAME=$(cd infra/terraform && terraform output -raw acr_login_server | cut -d'.' -f1)
+        echo "Building and pushing Docker image to $ACR_NAME..."
+        az acr build --registry $ACR_NAME --image zava-storefront:latest --file ./Dockerfile ./src
+
+  deploy:
+    windows:
+      shell: pwsh
+      run: |
+        cd infra/terraform
+        $APP_NAME = terraform output -raw app_service_name
+        $RG_NAME = terraform output -raw resource_group_name
+        Write-Host "Restarting App Service $APP_NAME..."
+        az webapp restart --name $APP_NAME --resource-group $RG_NAME
+    posix:
+      shell: sh
+      run: |
+        cd infra/terraform
+        APP_NAME=$(terraform output -raw app_service_name)
+        RG_NAME=$(terraform output -raw resource_group_name)
+        echo "Restarting App Service $APP_NAME..."
+        az webapp restart --name $APP_NAME --resource-group $RG_NAME
