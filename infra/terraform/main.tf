@@ -80,36 +80,36 @@ module "app_insights" {
 
 # App Service Plan in ASE v3
 module "app_service_plan" {
-  source                 = "./modules/app_service_plan"
-  resource_group_name    = azurerm_resource_group.main.name
-  location               = azurerm_resource_group.main.location
-  app_service_plan_name  = var.app_service_plan_name
-  ase_id                 = module.ase.ase_id
-  sku_name               = var.app_service_plan_sku
-  tags                   = var.tags
-  depends_on             = [module.ase]
+  source                = "./modules/app_service_plan"
+  resource_group_name   = azurerm_resource_group.main.name
+  location              = azurerm_resource_group.main.location
+  app_service_plan_name = var.app_service_plan_name
+  ase_id                = module.ase.ase_id
+  sku_name              = var.app_service_plan_sku
+  tags                  = var.tags
+  depends_on            = [module.ase]
 }
 
 # App Service
 module "app_service" {
-  source                      = "./modules/app_service"
-  resource_group_name         = azurerm_resource_group.main.name
-  location                    = azurerm_resource_group.main.location
-  app_service_name            = var.app_service_name
-  app_service_plan_id         = module.app_service_plan.app_service_plan_id
-  acr_login_server            = module.acr.acr_login_server
-  app_insights_connection_string = module.app_insights.connection_string
+  source                           = "./modules/app_service"
+  resource_group_name              = azurerm_resource_group.main.name
+  location                         = azurerm_resource_group.main.location
+  app_service_name                 = var.app_service_name
+  app_service_plan_id              = module.app_service_plan.app_service_plan_id
+  acr_login_server                 = module.acr.acr_login_server
+  app_insights_connection_string   = module.app_insights.connection_string
   app_insights_instrumentation_key = module.app_insights.instrumentation_key
-  docker_image_name           = var.docker_image_name
-  docker_image_tag            = var.docker_image_tag
-  tags                        = var.tags
+  docker_image_name                = var.docker_image_name
+  docker_image_tag                 = var.docker_image_tag
+  tags                             = var.tags
 }
 
 # Role Assignment - Grant App Service pull access to ACR
 module "role_assignment" {
-  source              = "./modules/role_assignment"
-  principal_id        = module.app_service.principal_id
-  acr_id              = module.acr.acr_id
+  source       = "./modules/role_assignment"
+  principal_id = module.app_service.principal_id
+  acr_id       = module.acr.acr_id
 }
 
 # Microsoft Foundry (Azure AI Foundry)
@@ -118,5 +118,6 @@ module "foundry" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   foundry_name        = var.foundry_name
+  app_insights_id     = module.app_insights.app_insights_id
   tags                = var.tags
 }

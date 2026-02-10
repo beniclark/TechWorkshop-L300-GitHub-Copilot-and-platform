@@ -14,10 +14,10 @@ resource "azurerm_linux_web_app" "app" {
   }
 
   app_settings = {
-    "APPLICATIONINSIGHTS_CONNECTION_STRING" = var.app_insights_connection_string
+    "APPLICATIONINSIGHTS_CONNECTION_STRING"      = var.app_insights_connection_string
     "ApplicationInsightsAgent_EXTENSION_VERSION" = "~3"
-    "APPINSIGHTS_INSTRUMENTATIONKEY" = var.app_insights_instrumentation_key
-    "DOCKER_ENABLE_CI" = "true"
+    "APPINSIGHTS_INSTRUMENTATIONKEY"             = var.app_insights_instrumentation_key
+    "DOCKER_ENABLE_CI"                           = "true"
   }
 
   identity {

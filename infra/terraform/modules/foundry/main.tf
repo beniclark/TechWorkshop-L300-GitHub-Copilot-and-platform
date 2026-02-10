@@ -25,10 +25,10 @@ resource "azurerm_machine_learning_workspace" "foundry_hub" {
   name                    = var.foundry_name
   location                = var.location
   resource_group_name     = var.resource_group_name
-  application_insights_id = null
+  application_insights_id = var.app_insights_id
   key_vault_id            = azurerm_key_vault.foundry_kv.id
   storage_account_id      = azurerm_storage_account.foundry_storage.id
-  
+
   identity {
     type = "SystemAssigned"
   }

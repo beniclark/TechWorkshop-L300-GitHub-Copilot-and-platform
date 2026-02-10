@@ -13,6 +13,12 @@ variable "foundry_name" {
   type        = string
 }
 
+variable "app_insights_id" {
+  description = "ID of Application Insights for Foundry"
+  type        = string
+  default     = null
+}
+
 variable "tags" {
   description = "Tags to apply to resources"
   type        = map(string)
