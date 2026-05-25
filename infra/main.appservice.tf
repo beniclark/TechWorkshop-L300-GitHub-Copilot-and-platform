@@ -119,6 +119,14 @@ module "app_service" {
 
   tags = local.common_tags
 
+  # Lifecycle management
+  lifecycle {
+    prevent_destroy = false  # Set to true for prod
+    ignore_changes = [
+      site_config[0].application_stack[0].docker_image_name  # Managed by CI/CD
+    ]
+  }
+
   depends_on = [
     module.app_service_plan,
     module.container_registry,

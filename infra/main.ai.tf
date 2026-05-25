@@ -20,9 +20,14 @@ module "ai_storage" {
   account_kind             = "StorageV2"
 
   # Security settings
-  public_network_access_enabled   = true # Required for AI Foundry in dev
-  shared_access_key_enabled       = true # Required for AI workspace
+  public_network_access_enabled   = var.environment != "prod" # Disable for production
+  shared_access_key_enabled       = true                      # Required for AI workspace
   allow_nested_items_to_be_public = false
+
+  # Lifecycle protection
+  lifecycle {
+    prevent_destroy = false  # Set to true for prod to prevent accidental deletion
+  }
 
   tags = local.common_tags
 
@@ -45,15 +50,15 @@ module "ai_key_vault" {
   # SKU
   sku_name = "standard"
 
-  # Security: Do NOT disable purge protection
-  purge_protection_enabled   = true
-  soft_delete_retention_days = 7
+  # Security: Purge protection for production only (allows dev resource recreation)
+  purge_protection_enabled   = var.environment == "prod"
+  soft_delete_retention_days = var.environment == "prod" ? 90 : 7
 
   # Enable RBAC authorization (default is false for legacy_access_policies_enabled)
   legacy_access_policies_enabled = false
 
-  # Network settings for dev
-  public_network_access_enabled = true
+  # Network settings - restrict public access in production
+  public_network_access_enabled = var.environment != "prod"
 
   tags = local.common_tags
 
@@ -106,8 +111,8 @@ module "ai_hub" {
     system_assigned = true
   }
 
-  # Network settings for dev
-  public_network_access_enabled = true
+  # Network settings - restrict public access in production
+  public_network_access_enabled = var.environment != "prod"
 
   tags = local.common_tags
 

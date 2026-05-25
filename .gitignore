@@ -145,6 +145,17 @@ appsettings.*.json
 Thumbs.db
 desktop.ini
 
+# Terraform state files - NEVER commit these (contain secrets)
+*.tfstate
+*.tfstate.backup
+*.tfstate.*.backup
+*.tfstate.lock.info
+.terraform/
+.terraform.lock.hcl
+*.tfplan
+*.tfvars
+!main.tfvars.json  # Exception: template tfvars without secrets
+
 # Keep track of local configs that may be useful to commit by exception
 !/.gitattributes
 !/.gitignore

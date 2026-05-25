@@ -14,14 +14,20 @@ module "container_registry" {
 
   sku = var.acr_sku
 
-  # Security: Disable admin user (use RBAC instead)
-  admin_enabled = false
+  # Security: Admin user enabled only for dev (initial image push)
+  # For prod, use RBAC with CI/CD service principal
+  admin_enabled = var.environment == "dev"
 
   # Security: Disable anonymous pull
   anonymous_pull_enabled = false
 
   # Enable zone redundancy for prod (not available in Basic SKU)
   zone_redundancy_enabled = var.acr_sku == "Premium" ? true : false
+
+  # Lifecycle protection for production
+  lifecycle {
+    prevent_destroy = false  # Set to true for prod
+  }
 
   # Diagnostic settings - send to Log Analytics
   diagnostic_settings = {

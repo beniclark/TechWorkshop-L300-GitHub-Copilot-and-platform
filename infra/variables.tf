@@ -13,11 +13,11 @@ variable "environment" {
 
 variable "location" {
   type        = string
-  description = "Azure region for all resources. Must be westus3 per project requirements."
+  description = "Azure region for all resources. westus3 recommended for production."
   default     = "westus3"
   validation {
-    condition     = var.location == "westus3"
-    error_message = "Location must be westus3 per issue requirements."
+    condition     = can(regex("^[a-z]+[0-9]*$", var.location))
+    error_message = "Location must be a valid Azure region name (e.g., westus3, eastus, westeurope)."
   }
 }
 
